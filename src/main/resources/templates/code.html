@@ -218,11 +218,6 @@
         Formatter error: <span th:text="${error}"></span>
     </div>
 
-    <!-- Live error (shown by JS on invalid input) -->
-    <div id="live-error" class="error-banner" style="display:none;">
-        Formatter error: <span id="live-error-text"></span>
-    </div>
-
     <div class="card">
         <h2>Paste Java Code</h2>
         <form action="/saveCode" method="post" th:object="${codeForm}">
@@ -286,48 +281,5 @@
     </div>
 </div>
 
-<script>
-(function () {
-    var textarea    = document.getElementById('code');
-    var preOriginal = document.getElementById('pre-original');
-    var preFormatted= document.getElementById('pre-formatted');
-    var preview     = document.getElementById('preview-section');
-    var liveErr     = document.getElementById('live-error');
-    var liveErrText = document.getElementById('live-error-text');
-    var timer;
-
-    if (!textarea) return;
-
-    textarea.addEventListener('input', function () {
-        if (preview.style.display === 'none') return;
-
-        clearTimeout(timer);
-        timer = setTimeout(function () {
-            var code = textarea.value;
-
-            if (!code.trim()) {
-                preview.style.display = 'none';
-                liveErr.style.display = 'none';
-                return;
-            }
-
-            var fd = new FormData();
-            fd.append('code', code);
-
-            fetch('/api/format', { method: 'POST', body: fd })
-                .then(function (r) { return r.json(); })
-                .then(function (data) {
-                    if (data.formatted !== undefined) {
-                        preOriginal.textContent  = code;
-                        preFormatted.textContent = data.formatted;
-                        liveErr.style.display    = 'none';
-                    }
-                    // on error — do nothing, keep previous preview as-is
-                })
-                .catch(function () { /* network error — ignore */ });
-        }, 350);
-    });
-}());
-</script>
 </body>
 </html>

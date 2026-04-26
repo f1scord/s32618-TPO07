@@ -4,7 +4,6 @@ import com.google.googlejavaformat.java.FormatterException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.Optional;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -50,17 +48,6 @@ public class CodeController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
         return new RedirectView("/code", true, false);
-    }
-
-    @PostMapping("/api/format")
-    @ResponseBody
-    public Map<String, String> formatApi(@RequestParam String code) {
-        try {
-            String formatted = codeFormatter.format(code);
-            return Map.of("formatted", formatted);
-        } catch (FormatterException e) {
-            return Map.of("error", e.getMessage());
-        }
     }
 
     @GetMapping("/findCode")
