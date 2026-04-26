@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -26,21 +27,23 @@ public class CodeController {
 
     @GetMapping("/code")
     public String showCodeForm(Model model) {
-        if (!model.containsAttribute("codeForm")) {
-            String original = (String) model.getAttribute("originalCode");
-            model.addAttribute("codeForm", new CodeForm(original));
+        CodeForm form = new CodeForm();
+        String original = (String) model.getAttribute("originalCode");
+        if (original != null) {
+            form.setCode(original);
         }
+        model.addAttribute("codeForm", form);
         return "code";
     }
 
     @PostMapping("/saveCode")
-    public RedirectView saveCode(@RequestParam String code, RedirectAttributes redirectAttributes) {
+    public RedirectView saveCode(@ModelAttribute CodeForm codeForm, RedirectAttributes redirectAttributes) {
+        String code = codeForm.getCode();
         try {
             String formatted = codeFormatter.format(code);
             redirectAttributes.addFlashAttribute("originalCode", code);
             redirectAttributes.addFlashAttribute("formattedCode", formatted);
         } catch (FormatterException e) {
-            // preserve original code so user doesn't lose it on error
             redirectAttributes.addFlashAttribute("originalCode", code);
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }

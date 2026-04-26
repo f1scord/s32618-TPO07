@@ -212,7 +212,7 @@
     <div class="card">
         <h2>Paste Java Code</h2>
         <form action="/saveCode" method="post" th:object="${codeForm}">
-            <textarea th:field="*{code}" placeholder="Paste your Java code here..."></textarea>
+            <textarea th:field="*{code}" placeholder="Paste your Java code here..." style="font-family: monospace;"></textarea>
             <button type="submit" class="btn btn-primary">Format Code</button>
         </form>
     </div>

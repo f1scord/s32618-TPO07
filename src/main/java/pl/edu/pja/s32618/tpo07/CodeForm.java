@@ -4,14 +4,6 @@ public class CodeForm {
 
     private String code;
 
-    public CodeForm() {
-        this.code = "";
-    }
-
-    public CodeForm(String code) {
-        this.code = code != null ? code : "";
-    }
-
     public String getCode() {
         return code;
     }
