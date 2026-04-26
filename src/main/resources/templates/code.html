@@ -239,10 +239,7 @@
                 <pre id="pre-original" th:text="${originalCode ?: ''}"></pre>
             </div>
             <div class="code-block">
-                <div class="code-block-header">
-                    Formatted
-                    <span class="live-badge">LIVE</span>
-                </div>
+                <div class="code-block-header">Formatted</div>
                 <pre id="pre-formatted" th:text="${formattedCode ?: ''}"></pre>
             </div>
         </div>
@@ -323,13 +320,9 @@
                     if (data.formatted !== undefined) {
                         preOriginal.textContent  = code;
                         preFormatted.textContent = data.formatted;
-                        preview.style.display    = 'block';
                         liveErr.style.display    = 'none';
-                    } else if (data.error) {
-                        liveErrText.textContent = data.error;
-                        liveErr.style.display   = 'block';
-                        preview.style.display   = 'none';
                     }
+                    // on error — do nothing, keep previous preview as-is
                 })
                 .catch(function () { /* network error — ignore */ });
         }, 350);
