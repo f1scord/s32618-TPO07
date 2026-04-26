@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Java Code Formatter — TPO07</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #f0f2f5;
+            color: #1e1e2e;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #1e1e2e;
+            letter-spacing: -0.5px;
+        }
+
+        h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #374151;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+        }
+
+        .error-banner {
+            background: #fef2f2;
+            border: 1px solid #fca5a5;
+            border-radius: 8px;
+            padding: 0.9rem 1.2rem;
+            color: #b91c1c;
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 220px;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+            font-size: 0.85rem;
+            padding: 0.9rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            resize: vertical;
+            background: #f9fafb;
+            color: #1e1e2e;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        textarea:focus {
+            border-color: #6366f1;
+            background: #ffffff;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.6rem 1.4rem;
+            border: none;
+            border-radius: 7px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.1s;
+        }
+
+        .btn:active { transform: scale(0.98); }
+
+        .btn-primary {
+            background: #6366f1;
+            color: #fff;
+            margin-top: 0.75rem;
+        }
+
+        .btn-primary:hover { background: #4f46e5; }
+
+        .btn-success {
+            background: #10b981;
+            color: #fff;
+        }
+
+        .btn-success:hover { background: #059669; }
+
+        .code-blocks {
+            display: flex;
+            gap: 1.25rem;
+        }
+
+        .code-block {
+            flex: 1;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #ffffff;
+        }
+
+        .code-block-header {
+            background: #f3f4f6;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 0.55rem 1rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 1rem;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+            font-size: 0.82rem;
+            line-height: 1.6;
+            color: #1e1e2e;
+            overflow-x: auto;
+            white-space: pre;
+            background: #ffffff;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .save-later-form {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .form-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .form-row label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #374151;
+            min-width: 80px;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            padding: 0.45rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.88rem;
+            outline: none;
+            background: #f9fafb;
+            color: #1e1e2e;
+            transition: border-color 0.15s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            border-color: #6366f1;
+            background: #ffffff;
+        }
+
+        input[type="text"] { width: 240px; }
+        input[type="number"] { width: 80px; }
+
+        .duration-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .duration-unit {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.83rem;
+            color: #6b7280;
+        }
+
+        .section-divider {
+            border: none;
+            border-top: 1px solid #e5e7eb;
+            margin: 1.5rem 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Java Code Formatter</h1>
+
+    <div th:if="${error}" class="error-banner">
+        Formatter error: <span th:text="${error}"></span>
+    </div>
+
+    <div class="card">
+        <h2>Paste Java Code</h2>
+        <form action="/saveCode" method="post">
+            <textarea name="code" th:text="${originalCode ?: ''}" placeholder="Paste your Java code here..."></textarea>
+            <button type="submit" class="btn btn-primary">Format Code</button>
+        </form>
+    </div>
+
+    <div th:if="${originalCode != null and formattedCode != null}">
+
+        <div class="code-blocks">
+            <div class="code-block">
+                <div class="code-block-header">Original</div>
+                <pre th:text="${originalCode}"></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-block-header">Formatted</div>
+                <pre th:text="${formattedCode}"></pre>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 1.5rem;">
+            <h2>Save for Later</h2>
+            <form action="/saveForLater" method="post" class="save-later-form">
+                <input type="hidden" name="formattedCode" th:value="${formattedCode}">
+                <input type="hidden" name="originalCode" th:value="${originalCode}">
+
+                <div class="form-row">
+                    <label for="saveId">Code ID</label>
+                    <input type="text" id="saveId" name="id" placeholder="e.g. my-snippet-1" required>
+                </div>
+
+                <div class="form-row">
+                    <label>Expires in</label>
+                    <div class="duration-group">
+                        <div class="duration-unit">
+                            <input type="number" name="days" id="days" min="0" max="90" value="0">
+                            <span>days</span>
+                        </div>
+                        <div class="duration-unit">
+                            <input type="number" name="hours" id="hours" min="0" max="23" value="0">
+                            <span>hrs</span>
+                        </div>
+                        <div class="duration-unit">
+                            <input type="number" name="minutes" id="minutes" min="0" max="59" value="0">
+                            <span>min</span>
+                        </div>
+                        <div class="duration-unit">
+                            <input type="number" name="seconds" id="seconds" min="0" max="59" value="10">
+                            <span>sec</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit" class="btn btn-success">Save for Later</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

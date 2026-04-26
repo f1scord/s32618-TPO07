@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Saved Code — TPO07</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #f0f2f5;
+            color: #1e1e2e;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+        }
+
+        .error-banner {
+            background: #fef2f2;
+            border: 1px solid #fca5a5;
+            border-radius: 8px;
+            padding: 0.9rem 1.2rem;
+            color: #b91c1c;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .meta-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.25rem;
+        }
+
+        .meta-table td {
+            padding: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+
+        .meta-table td:first-child {
+            font-weight: 600;
+            color: #6b7280;
+            width: 140px;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.4px;
+        }
+
+        .code-block {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .code-block-header {
+            background: #f3f4f6;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 0.55rem 1rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 1rem;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+            font-size: 0.82rem;
+            line-height: 1.6;
+            color: #1e1e2e;
+            overflow-x: auto;
+            white-space: pre;
+            background: #ffffff;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 1rem;
+            color: #6366f1;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .back-link:hover { text-decoration: underline; }
+
+        .badge {
+            display: inline-block;
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+            border-radius: 999px;
+            padding: 0.2rem 0.7rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Saved Code</h1>
+
+    <div th:if="${error}" class="error-banner">
+        Formatter error: <span th:text="${error}"></span>
+    </div>
+
+    <div th:unless="${error}">
+        <div class="card">
+            <table class="meta-table">
+                <tr>
+                    <td>ID</td>
+                    <td><code th:text="${savedCode.id}"></code></td>
+                </tr>
+                <tr>
+                    <td>Status</td>
+                    <td><span class="badge">Active</span></td>
+                </tr>
+                <tr>
+                    <td>Expires at</td>
+                    <td th:text="${#temporals.format(savedCode.expiresAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="code-block">
+            <div class="code-block-header">Formatted Code</div>
+            <pre th:text="${savedCode.formattedCode}"></pre>
+        </div>
+    </div>
+
+    <a href="/code" class="back-link">← Back to formatter</a>
+</div>
+</body>
+</html>
