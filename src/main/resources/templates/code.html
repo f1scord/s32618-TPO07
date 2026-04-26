@@ -194,10 +194,18 @@
             color: #6b7280;
         }
 
-        .section-divider {
-            border: none;
-            border-top: 1px solid #e5e7eb;
-            margin: 1.5rem 0;
+        .live-badge {
+            display: inline-block;
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+            border-radius: 999px;
+            padding: 0.1rem 0.55rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-left: 0.5rem;
+            vertical-align: middle;
         }
     </style>
 </head>
@@ -205,32 +213,42 @@
 <div class="container">
     <h1>Java Code Formatter</h1>
 
+    <!-- Server-side error (from flash after form submit) -->
     <div th:if="${error}" class="error-banner">
         Formatter error: <span th:text="${error}"></span>
+    </div>
+
+    <!-- Live error (shown by JS on invalid input) -->
+    <div id="live-error" class="error-banner" style="display:none;">
+        Formatter error: <span id="live-error-text"></span>
     </div>
 
     <div class="card">
         <h2>Paste Java Code</h2>
         <form action="/saveCode" method="post" th:object="${codeForm}">
-            <textarea th:field="*{code}" placeholder="Paste your Java code here..." style="font-family: monospace;"></textarea>
+            <textarea th:field="*{code}" placeholder="Paste your Java code here..."></textarea>
             <button type="submit" class="btn btn-primary">Format Code</button>
         </form>
     </div>
 
-    <div th:if="${originalCode != null and formattedCode != null}">
-
+    <!-- Preview section: always in DOM, Thymeleaf sets initial visibility, JS updates it live -->
+    <div id="preview-section" th:style="${originalCode != null and formattedCode != null} ? '' : 'display:none'">
         <div class="code-blocks">
             <div class="code-block">
                 <div class="code-block-header">Original</div>
-                <pre th:text="${originalCode}"></pre>
+                <pre id="pre-original" th:text="${originalCode ?: ''}"></pre>
             </div>
             <div class="code-block">
-                <div class="code-block-header">Formatted</div>
-                <pre th:text="${formattedCode}"></pre>
+                <div class="code-block-header">
+                    Formatted
+                    <span class="live-badge">LIVE</span>
+                </div>
+                <pre id="pre-formatted" th:text="${formattedCode ?: ''}"></pre>
             </div>
         </div>
 
-        <div class="card" style="margin-top: 1.5rem;">
+        <!-- Save for Later: only shown after server-side format (has the flash values needed for hidden inputs) -->
+        <div class="card" th:if="${originalCode != null and formattedCode != null}" style="margin-top: 1.5rem;">
             <h2>Save for Later</h2>
             <form action="/saveForLater" method="post" class="save-later-form">
                 <input type="hidden" name="formattedCode" th:value="${formattedCode}">
@@ -270,5 +288,51 @@
         </div>
     </div>
 </div>
+
+<script>
+(function () {
+    var textarea    = document.getElementById('code');
+    var preOriginal = document.getElementById('pre-original');
+    var preFormatted= document.getElementById('pre-formatted');
+    var preview     = document.getElementById('preview-section');
+    var liveErr     = document.getElementById('live-error');
+    var liveErrText = document.getElementById('live-error-text');
+    var timer;
+
+    if (!textarea) return;
+
+    textarea.addEventListener('input', function () {
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+            var code = textarea.value;
+
+            if (!code.trim()) {
+                preview.style.display = 'none';
+                liveErr.style.display = 'none';
+                return;
+            }
+
+            var fd = new FormData();
+            fd.append('code', code);
+
+            fetch('/api/format', { method: 'POST', body: fd })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (data.formatted !== undefined) {
+                        preOriginal.textContent  = code;
+                        preFormatted.textContent = data.formatted;
+                        preview.style.display    = 'block';
+                        liveErr.style.display    = 'none';
+                    } else if (data.error) {
+                        liveErrText.textContent = data.error;
+                        liveErr.style.display   = 'block';
+                        preview.style.display   = 'none';
+                    }
+                })
+                .catch(function () { /* network error — ignore */ });
+        }, 350);
+    });
+}());
+</script>
 </body>
 </html>
