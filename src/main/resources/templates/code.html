@@ -302,6 +302,8 @@
     if (!textarea) return;
 
     textarea.addEventListener('input', function () {
+        if (preview.style.display === 'none') return;
+
         clearTimeout(timer);
         timer = setTimeout(function () {
             var code = textarea.value;
