@@ -1,6 +1,8 @@
 package pl.edu.pja.s32618.tpo07;
 
 import com.google.googlejavaformat.java.FormatterException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import org.springframework.stereotype.Controller;
@@ -25,7 +27,8 @@ public class CodeController {
     @GetMapping("/code")
     public String showCodeForm(Model model) {
         if (!model.containsAttribute("codeForm")) {
-            model.addAttribute("codeForm", "");
+            String original = (String) model.getAttribute("originalCode");
+            model.addAttribute("codeForm", new CodeForm(original));
         }
         return "code";
     }
@@ -37,6 +40,8 @@ public class CodeController {
             redirectAttributes.addFlashAttribute("originalCode", code);
             redirectAttributes.addFlashAttribute("formattedCode", formatted);
         } catch (FormatterException e) {
+            // preserve original code so user doesn't lose it on error
+            redirectAttributes.addFlashAttribute("originalCode", code);
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
         return new RedirectView("/code", true, false);
@@ -83,6 +88,7 @@ public class CodeController {
         SavedCode savedCode = new SavedCode(id, originalCode, formattedCode, expiresAt);
         codeStorageService.save(savedCode);
 
-        return new RedirectView("/findCode?ID=" + id, true, false);
+        String encodedId = URLEncoder.encode(id, StandardCharsets.UTF_8);
+        return new RedirectView("/findCode?ID=" + encodedId, true, false);
     }
 }
