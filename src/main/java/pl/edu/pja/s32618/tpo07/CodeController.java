@@ -87,6 +87,13 @@ public class CodeController {
             return new RedirectView("/code", true, false);
         }
 
+        if (codeStorageService.findById(id).isPresent()) {
+            redirectAttributes.addFlashAttribute("error", "ID '" + id + "' is already in use. Choose a different ID.");
+            redirectAttributes.addFlashAttribute("originalCode", originalCode);
+            redirectAttributes.addFlashAttribute("formattedCode", formattedCode);
+            return new RedirectView("/code", true, false);
+        }
+
         LocalDateTime expiresAt = LocalDateTime.now().plusSeconds(totalSeconds);
         SavedCode savedCode = new SavedCode(id, originalCode, formattedCode, expiresAt);
         codeStorageService.save(savedCode);
